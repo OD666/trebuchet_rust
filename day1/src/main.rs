@@ -1,5 +1,8 @@
 use regex::Regex;
 
+extern crate unicode_segmentation;
+use unicode_segmentation::UnicodeSegmentation;
+
 const MAIN_LIST: [&str; 1000] = [
     "9eightone",
     "hczsqfour3nxm5seven4",
@@ -1004,6 +1007,7 @@ const MAIN_LIST: [&str; 1000] = [
 ];
 
 fn main() {
+    // let main_list = ["1abc2", "pqr3stu8vwx", "a1b2c3d4e6f", "treb7uchet"].to_vec();
     let main_list = MAIN_LIST.to_vec();
 
     day_1_1(main_list);
@@ -1017,28 +1021,53 @@ fn day_1_1(list: Vec<&str>) -> usize {
     for item in list.iter() {
         println!("orig_item {} ", item);
 
-        let rx = Regex::new(r"[a-z]").unwrap();
-        let new_item = rx.replace_all(item, "");
-        println!("new_item {}", new_item);
+        let rx = Regex::new(r"[0-9]").unwrap();
+        let mut num1 = "";
+        let mut num2 = "";
 
-        let len = new_item.len();
-
-        if len == 1 {
-            let num = &(new_item.clone() + new_item);
-            let num = num.parse::<usize>().unwrap();
-            println!("num {}", num);
-
-            numbers.push(num)
-        } else {
-            let slice0 = &new_item[..1];
-            let slice1 = &new_item[len - 1..len];
-
-            let num = &(slice0.to_owned() + slice1);
-            let num = num.parse::<usize>().unwrap();
-            println!("num {}", num);
-
-            numbers.push(num)
+        if let Some(captures) = rx.captures(item) {
+            num1 = captures.get(0).unwrap().as_str();
         }
+
+        let rev_item: String = item.graphemes(true).rev().collect();
+        println!("rev_item {}", rev_item);
+
+        if let Some(captures) = rx.captures(&rev_item) {
+            num2 = captures.get(0).unwrap().as_str();
+        }
+
+        let num = &(num1.to_owned() + num2);
+        let num = num.parse::<usize>().unwrap();
+        println!("num {}", num);
+
+        numbers.push(num);
+
+        // ====================================================
+        // другой вариант решения
+
+        // let rx = Regex::new(r"[a-z]").unwrap();
+        // let new_item = rx.replace_all(item, "");
+        // println!("new_item {}", new_item);
+
+        // let len = new_item.len();
+
+        // if len == 1 {
+        //     let num = &(new_item.clone() + new_item);
+        //     let num = num.parse::<usize>().unwrap();
+        //     println!("num {}", num);
+
+        //     numbers.push(num)
+        // } else {
+        //     let slice0 = &new_item[..1];
+        //     let slice1 = &new_item[len - 1..len];
+
+        //     let num = &(slice0.to_owned() + slice1);
+        //     let num = num.parse::<usize>().unwrap();
+        //     println!("num {}", num);
+
+        //     numbers.push(num)
+        // }
+        // ====================================================
 
         // println!("numbers {:?}", numbers);
         println!("   ");
